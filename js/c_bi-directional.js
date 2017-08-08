@@ -23,10 +23,10 @@ class BidirectionalDiagram {
 
     this.initialColor = 'hsl(0, 2%, 76%)';
     this.edgeColor = 'hsl(0, 2%, 80%)';
-    this.sourceBFSColor = 'hsl(200,50%,70%)';
-    this.destBFSColor = 'hsl(209, 30%, 50%)';
-    this.sourceColor = 'hsl(209, 100%, 20%)';
-    this.destColor = 'hsl(209, 100%, 20%)';
+    this.sourceBFSColor = 'rgb(100,100,0)';
+    this.destBFSColor = 'rgb(100,0,0)';
+    this.sourceColor = 'rgb(0,0,255)';
+    this.destColor = 'rgb(0,255,0)';
     this.nodeSize = 3.5;
     this.textColorScale = d3.scaleLinear().domain([0, this.nodes.length / 2])
       .interpolate(d3.interpolateRgb)
@@ -142,5 +142,4 @@ $(document).ready(function() {
   }
 
   init();
-  $('#bi-directional .restart-button').click(restart);
 });

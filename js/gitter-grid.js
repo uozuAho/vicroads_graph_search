@@ -1,3 +1,11 @@
+/**
+ * Creates a square 2d grid of nodes placed at random locations
+ * within each grid cell.
+ * @param {number} height 
+ * @param {number} width 
+ * @param {number} totalNodes
+ * @return {array} 2d array of (x,y) coords
+ */
 function gitteredGrid(height, width, totalNodes) {
   let cellSize = Math.sqrt(height * width / totalNodes);
   let columnSize = Math.floor(width / cellSize);
