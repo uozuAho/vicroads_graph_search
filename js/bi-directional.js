@@ -15,7 +15,14 @@ class Node {
     this.adjacent = (adjacent != undefined) ? adjacent : [];
   }
 }
-//Generates a random planar graph
+
+/**
+ * Generates a random planar graph
+ * @param {number} height
+ * @param {number} width
+ * @param {number} totalNodes
+ * @returns [Node[], edges[]]
+ */
 function randomPlanarGraph(height, width, totalNodes) {
   let nodes = [],
     edges = [];
