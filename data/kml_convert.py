@@ -2,6 +2,7 @@
 
 
 import argparse
+import csv
 import json
 import xml.etree.ElementTree as etree
 
@@ -9,9 +10,9 @@ import xml.etree.ElementTree as etree
 def main():
     args = parse_args()
     if args.out.endswith('.json'):
-        kml_2_json(args.kml, args.out)
+        kml_2_json(args.kml, args.out, args.limit)
     elif args.out.endswith('.csv'):
-        print('csv output not implemented')
+        kml_2_csv(args.kml, args.out)
     else:
         print('unknown output extension')
 
@@ -20,24 +21,44 @@ def parse_args(args=None):
     parser = argparse.ArgumentParser()
     parser.add_argument('kml', help='vicroads kml data file')
     parser.add_argument('out', help='output path. Format determined by output extension')
+    parser.add_argument('-l', '--limit', type=int, help='limit the numer of output placemarks')
     if args is None:
         return parser.parse_args()
     else:
         return parser.parse_args(args)
 
 
-def kml_2_json(kml_path, json_path):
-    placemarks = kml_2_placemarks(kml_path)
+def kml_2_json(kml_path, json_path, limit=None):
+    """ convert vicroads kml data file to json file """
+    placemarks = kml_2_placemarks(kml_path, limit)
     placemarks_to_json(placemarks, json_path)
 
 
-def kml_2_placemarks(kml_path):
+def kml_2_csv(kml_path, csv_path):
+    """ convert vicroads kml data file to csv file """
+    placemarks = kml_2_placemarks(kml_path)
+
+    with open(csv_path, 'w') as csvfile:
+        fieldnames = ['declared_name', 'lat', 'lon']
+        writer = csv.DictWriter(csvfile, fieldnames=fieldnames)
+        writer.writeheader()
+        for placemark in placemarks:
+            for point in placemark.points:
+                writer.writerow({"declared_name": placemark.declared_name,
+                                 "lat": point.lat, "lon": point.lon})
+
+
+def kml_2_placemarks(kml_path, limit=None):
     """ Parse vicroads kml into a list of Placemarks
         Returns: Placemark iterator
     """
     kmltree = etree.parse(kml_path).getroot()
 
+    i = 0
     for p in kmltree.iter('Placemark'):
+        i += 1
+        if i > limit:
+            break
         yield placemark_e2obj(p)
 
 

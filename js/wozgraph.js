@@ -1,5 +1,4 @@
-/** Assumes road data is loaded into a variable
- *  named roads_small
+/** Assumes road data is loaded into a variable named roads_data
  */
 
 /**
@@ -22,7 +21,7 @@ function vicroadsGraph(data) {
 }
 
 $(document).ready(function() {
-  for (let i = 0; i < roads_small.length; i++) {
-    console.log(roads_small[i].declared_name);
+  for (let i = 0; i < roads_data.length; i++) {
+    console.log(roads_data[i].declared_name);
   }
 });
