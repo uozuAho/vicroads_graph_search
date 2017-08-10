@@ -1,1 +1,3 @@
-data
+data/*.js
+data/*.json
+data/*.kml

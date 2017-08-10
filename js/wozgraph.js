@@ -1,3 +1,7 @@
+/** Assumes road data is loaded into a variable
+ *  named roads_small
+ */
+
 /**
  * Create a graph from vicroads json data
  * @param {object[]} data
