@@ -57,7 +57,7 @@ def kml_2_placemarks(kml_path, limit=None):
     i = 0
     for p in kmltree.iter('Placemark'):
         i += 1
-        if i > limit:
+        if limit and i > limit:
             break
         yield placemark_e2obj(p)
 
@@ -91,9 +91,9 @@ def placemark_e2obj(placemark):
 
 def coords_text_to_points(text):
     """ Convert a list of coordinates (kml linestring) to a Point iterator """
-    for xy in text.split():
-        x, y = xy.split(',')
-        yield Point(float(x), float(y))
+    for lonlat in text.split():
+        lon, lat = lonlat.split(',')
+        yield Point(lat=lat, lon=lon)
 
 
 class Placemark(object):
@@ -119,8 +119,8 @@ class Placemark(object):
 
 class Point:
     def __init__(self, lat, lon):
-        self.lat = lat
-        self.lon = lon
+        self.lat = float(lat)
+        self.lon = float(lon)
 
 
 if __name__ == '__main__':
