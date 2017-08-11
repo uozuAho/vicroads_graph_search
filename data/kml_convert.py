@@ -9,10 +9,13 @@ import xml.etree.ElementTree as etree
 
 def main():
     args = parse_args()
+    placemarks = kml_2_placemarks(args.kml, args.limit)
     if args.out.endswith('.json'):
-        kml_2_json(args.kml, args.out, args.limit)
+        placemarks_to_json(placemarks, args.out, args.pretty)
     elif args.out.endswith('.csv'):
-        kml_2_csv(args.kml, args.out)
+        placemarks_2_csv(placemarks, args.out)
+    elif args.out.endswith('.js'):
+        placemarks_to_js(placemarks, args.out, args.pretty)
     else:
         print('unknown output extension')
 
@@ -22,22 +25,15 @@ def parse_args(args=None):
     parser.add_argument('kml', help='vicroads kml data file')
     parser.add_argument('out', help='output path. Format determined by output extension')
     parser.add_argument('-l', '--limit', type=int, help='limit the numer of output placemarks')
+    parser.add_argument('-p', '--pretty', action='store_true', help='pretty print (js(on) only)')
     if args is None:
         return parser.parse_args()
     else:
         return parser.parse_args(args)
 
 
-def kml_2_json(kml_path, json_path, limit=None):
-    """ convert vicroads kml data file to json file """
-    placemarks = kml_2_placemarks(kml_path, limit)
-    placemarks_to_json(placemarks, json_path)
-
-
-def kml_2_csv(kml_path, csv_path):
+def placemarks_2_csv(placemarks, csv_path):
     """ convert vicroads kml data file to csv file """
-    placemarks = kml_2_placemarks(kml_path)
-
     with open(csv_path, 'w') as csvfile:
         fieldnames = ['declared_name', 'lat', 'lon']
         writer = csv.DictWriter(csvfile, fieldnames=fieldnames)
@@ -62,14 +58,24 @@ def kml_2_placemarks(kml_path, limit=None):
         yield placemark_e2obj(p)
 
 
-def placemarks_to_json(placemarks, outpath):
+def placemarks_to_json(placemarks, outpath, pretty=False):
     """ Write placemarks to json file """
-    placemark_dicts = [p.to_jsondict() for p in placemarks]
     with open(outpath, 'w') as ofile:
-        # indent \t saves MBs over spaces
-        # and funnily enough loads much quicker in sublime than
-        # single-line json
-        json.dump(placemark_dicts, ofile, indent='\t')
+        ofile.write(placemarks_to_json_str(placemarks, pretty))
+
+
+def placemarks_to_json_str(placemarks, pretty=False):
+    """ Return list of placemarks as a json string """
+    placemark_dicts = [p.to_jsondict() for p in placemarks]
+    indent = '\t' if pretty else None
+    return json.dumps(placemark_dicts, indent=indent)
+
+
+def placemarks_to_js(placemarks, outpath, pretty=False, var_name='roads_data'):
+    """ Write list of placemarks to a js variable in a file """
+    with open(outpath, 'w') as ofile:
+        ofile.write('let {} = '.format(var_name))
+        ofile.write(placemarks_to_json_str(placemarks))
 
 
 def placemark_e2obj(placemark):
