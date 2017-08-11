@@ -1,16 +1,6 @@
 /** Assumes road data is loaded into a variable named roads_data
  */
 
-// scale latitude to fit in 500x500 grid
-function latToY(lat) {
-  return 500 - (lat + 39.0307555294734) * 56.91535750124111;
-}
-
-// scale longitude to fit in 500x500 grid
-function lonToX(lon) {
-  return (lon - 140.963092910004) * 56.91535750124111;
-}
-
 /**
  * Create nodes and edges from vicroads json data
  * @param {object[]} roads_data
@@ -23,8 +13,8 @@ function vicroadsNodesAndEdges(roads_data) {
     let points = roads_data[i].points;
     for (let j = 0; j < points.length; j++) {
       let point = points[j];
-      // push each road point into the graph as a node
-      nodes.push(new Node(i, lonToX(point[1]), latToY(point[0])));
+      // push each road point into the graph as a node (lon, lat coords)
+      nodes.push(new Node(i, point[1], point[0]));
       if (j > 0) {
         // add edges between points on same road
         let lastidx = nodes.length - 1;
@@ -39,6 +29,39 @@ function vicroadsNodesAndEdges(roads_data) {
   return {nodes: nodes, edges: edges};
 }
 
+/** Scale nodes' x,y values to fit in box of size h,w. Maintain aspect ratio */
+function scaleNodesToFit(nodes, height, width) {
+  let minx = 999;
+  let miny = 999;
+  let maxx = -999;
+  let maxy = -999;
+  for (let i = 0; i < nodes.length; i++) {
+    if (nodes[i].x < minx)
+      minx = nodes[i].x;
+    if (nodes[i].y < miny)
+      miny = nodes[i].y;
+    if (nodes[i].x > maxx)
+      maxx = nodes[i].x;
+    if (nodes[i].y > maxy)
+      maxy = nodes[i].y;
+  }
+  let scalex = width / (maxx - minx);
+  let scaley = height / (maxy - miny);
+  // want to maintain aspect ratio, so use the minimum x/y scale factor
+  let scale = Math.min(scalex, scaley);
+  console.log('minx: ' + minx);
+  console.log('maxx: ' + maxx);
+  console.log('miny: ' + miny);
+  console.log('maxy: ' + maxy);
+  console.log('scale: ' + scale);
+  for (let i = 0; i < nodes.length; i++) {
+    let node = nodes[i];
+    node.x = (node.x - minx) * scale;
+    // invert y since display y is inverted
+    node.y = height - (node.y - miny) * scale;
+  }
+}
+
 class WozGraph {
   constructor(nodes, edges) {
     this.nodes = nodes;
@@ -51,13 +74,16 @@ class WozGraph {
 }
 
 $(document).ready(function() {
+  let height = 1000;
+  let width = 1000;
   let ne = vicroadsNodesAndEdges(roads_data);
   console.log('nodes: ' + ne.nodes.length);
-  let lat = ne.nodes[0].y;
-  let lon = ne.nodes[0].x;
-  console.log(`node1 lat,lon: ${lat}, ${lon}`);
+  scaleNodesToFit(ne.nodes, height, width);
+  let x = ne.nodes[0].x;
+  let y = ne.nodes[0].y;
+  console.log(`node 1 x,y: ${x}, ${y}`);
   let graph = new WozGraph(ne.nodes, ne.edges);
   let problem = new BidirectionalProblem(graph);
-  let vicDiagram = new BFSDiagram(d3.select('#vicroads_div').select('#vicCanvas'), 600, 600);
+  let vicDiagram = new BFSDiagram(d3.select('#vicroads_div').select('#vicCanvas'), height, width);
   vicDiagram.init(problem, d3.select('#vicroads_div').select('#vicStepCount'));
 });
