@@ -1,3 +1,7 @@
+# python
+*.pyc
+
+# large data files
 data/*.js
 data/*.json
 data/*.kml

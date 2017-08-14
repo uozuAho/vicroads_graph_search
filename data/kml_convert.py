@@ -1,4 +1,4 @@
-""" Convert vicroads kml data to json, csv """
+""" Convert vicroads kml data to json, csv, js """
 
 
 import argparse
@@ -149,6 +149,7 @@ class Placemark(object):
             len(self.points))
 
 class Point:
+    """ A 2D (latitude, longitude) point """
     def __init__(self, lat, lon):
         self.lat = float(lat)
         self.lon = float(lon)
