@@ -74,8 +74,8 @@ class WozGraph {
 }
 
 $(document).ready(function() {
-  let height = 1000;
-  let width = 1000;
+  let height = 500;
+  let width = 1100;
   let ne = vicroadsNodesAndEdges(roads_data);
   console.log('nodes: ' + ne.nodes.length);
   scaleNodesToFit(ne.nodes, height, width);

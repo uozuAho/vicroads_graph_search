@@ -10,6 +10,8 @@ import xml.etree.ElementTree as etree
 def main():
     args = parse_args()
     placemarks = kml_2_placemarks(args.kml, args.limit)
+    if args.bbox:
+        placemarks = filter_placemarks_bbox(placemarks, args.bbox)
     if args.out.endswith('.json'):
         placemarks_to_json(placemarks, args.out, args.pretty)
     elif args.out.endswith('.csv'):
@@ -26,6 +28,8 @@ def parse_args(args=None):
     parser.add_argument('out', help='output path. Format determined by output extension')
     parser.add_argument('-l', '--limit', type=int, help='limit the numer of output placemarks')
     parser.add_argument('-p', '--pretty', action='store_true', help='pretty print (js(on) only)')
+    parser.add_argument('-b', '--bbox', type=float, nargs=4,
+                        help='bounding box: [lat lon lat lon]. Points outside this box are removed')
     if args is None:
         return parser.parse_args()
     else:
@@ -100,6 +104,27 @@ def coords_text_to_points(text):
     for lonlat in text.split():
         lon, lat = lonlat.split(',')
         yield Point(lat=lat, lon=lon)
+
+
+def filter_placemarks_bbox(placemarks, bbox):
+    """ Remove points outside the bbox. If a placemark has no points, it is removed.
+        bbox: [lat, lon, lat, lon]
+    """
+    maxlat = max(bbox[0], bbox[2])
+    minlat = min(bbox[0], bbox[2])
+    maxlon = max(bbox[1], bbox[3])
+    minlon = min(bbox[1], bbox[3])
+    for p in placemarks:
+        p.points = list(filter_points_bbox(p.points, minlat, maxlat, minlon, maxlon))
+        if len(p.points) > 0:
+            yield p
+
+
+def filter_points_bbox(points, minlat, maxlat, minlon, maxlon):
+    """ Yield points within the given bounds """
+    for p in points:
+        if p.lat >= minlat and p.lat < maxlat and p.lon >= minlon and p.lon < maxlon:
+            yield p
 
 
 class Placemark(object):
