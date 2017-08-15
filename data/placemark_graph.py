@@ -1,21 +1,21 @@
 """ Convert vicroads declared roads kml to a graph """
 
 
-import kml_convert
-import kd_tree
 import unittest
 
-
-def main():
-    pass
+import kd_tree
 
 
 def placemarks_to_graph(placemarks):
+    """ Converts all points in the given placemarks to graph nodes, connecting
+        nodes on the same road, and nodes that are close to each other
+    """
     nodes = placemarks_to_nodes(placemarks)
     add_edges_between_close_nodes(nodes)
+    return nodes
 
 
-def add_edges_between_close_nodes(nodes, max_dist_squared):
+def add_edges_between_close_nodes(nodes, max_dist_squared=.0000000000001):
     tree = kd_tree.create(nodes)
     for node in nodes:
         nearest_kdnode, dist_squared = tree.search_knn(node.xy, 2)[1]
@@ -33,6 +33,7 @@ def placemarks_to_nodes(placemarks):
         for point_num in range(len(p.points)):
             point = p.points[point_num]
             node = road_point_to_node(point, nodes_idx)
+            nodes.append(node)
             # add edge between points on same placemark (same road)
             if point_num > 0:
                 nodes[-1].adjacent.add(nodes_idx)

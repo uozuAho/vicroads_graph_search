@@ -6,6 +6,8 @@ import csv
 import json
 import xml.etree.ElementTree as etree
 
+import placemark_graph
+
 
 def main():
     args = parse_args()
@@ -16,6 +18,8 @@ def main():
         placemarks_to_json(placemarks, args.out, args.pretty)
     elif args.out.endswith('.csv'):
         placemarks_2_csv(placemarks, args.out)
+    elif args.out.endswith('.graph.js'):
+        placemarks_to_js_graph(placemarks, args.out, args.pretty)
     elif args.out.endswith('.js'):
         placemarks_to_js(placemarks, args.out, args.pretty)
     else:
@@ -23,7 +27,8 @@ def main():
 
 
 def parse_args(args=None):
-    parser = argparse.ArgumentParser()
+    parser = argparse.ArgumentParser(
+        description='Convert vicroads kml data to csv, js, json')
     parser.add_argument('kml', help='vicroads kml data file')
     parser.add_argument('out', help='output path. Format determined by output extension')
     parser.add_argument('-l', '--limit', type=int, help='limit the numer of output placemarks')
@@ -79,7 +84,23 @@ def placemarks_to_js(placemarks, outpath, pretty=False, var_name='roads_data'):
     """ Write list of placemarks to a js variable in a file """
     with open(outpath, 'w') as ofile:
         ofile.write('let {} = '.format(var_name))
-        ofile.write(placemarks_to_json_str(placemarks))
+        ofile.write(placemarks_to_json_str(placemarks, pretty))
+
+def placemarks_to_js_graph(placemarks, outpath, pretty=False, var_name='roads_graph'):
+    """ Write a js data variable of nodes and edges:
+        {'nodes': [(lat, lon), ...], 'edges': [(0, 1), (1, 0), ...]}
+    """
+    nodes = placemark_graph.placemarks_to_graph(placemarks)
+    graph = {'nodes': [], 'edges': []}
+    node_idx = 0
+    for node in nodes:
+        graph['nodes'].append(node.xy)
+        for a in node.adjacent:
+            graph['edges'].append((node_idx, a))
+    with open(outpath, 'w') as ofile:
+        ofile.write('let {} = '.format(var_name))
+        indent = '\t' if pretty else None
+        ofile.write(json.dumps(graph, indent=indent))
 
 
 def placemark_e2obj(placemark):
