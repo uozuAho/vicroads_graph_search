@@ -66,7 +66,7 @@ class BidirectionalDiagram {
     this.textElement.text(this.steps);
     this.textElement.style('color', this.textColorScale(this.steps));
     this.steps = 0;
-    // this.bfs();
+    this.bfs();
   }
 
   colorNode(node, color) {

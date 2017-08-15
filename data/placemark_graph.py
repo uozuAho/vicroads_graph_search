@@ -36,11 +36,11 @@ def placemarks_to_nodes(placemarks):
         for point_num in range(len(p.points)):
             point = p.points[point_num]
             node = road_point_to_node(point, nodes_idx)
-            nodes.append(node)
             # add edge between points on same placemark (same road)
             if point_num > 0:
                 nodes[-1].adjacent.add(nodes_idx)
                 node.adjacent.add(nodes_idx - 1)
+            nodes.append(node)
             nodes_idx += 1
     return nodes
 
@@ -87,6 +87,29 @@ class KmlToGraphTests(unittest.TestCase):
         self.assertEqual(n1.adjacent, set([2]))
         self.assertEqual(n2.adjacent, set([1, 3]))
         self.assertEqual(n3.adjacent, set([2]))
+
+    def test_placemarks_to_nodes(self):
+        pm1 = TestPlacemark([TestPoint(0, 0)])
+        pm2 = TestPlacemark([TestPoint(1, 0), TestPoint(1, 1)])
+        nodes = placemarks_to_nodes([pm1, pm2])
+        self.assertEqual(len(nodes), 3)
+        n0 = nodes[0]
+        n1 = nodes[1]
+        n2 = nodes[2]
+        self.assertEqual(n0.adjacent, set([]))
+        self.assertEqual(n1.adjacent, set([2]))
+        self.assertEqual(n2.adjacent, set([1]))
+
+
+class TestPlacemark:
+    def __init__(self, points):
+        self.points = points
+
+
+class TestPoint:
+    def __init__(self, lon, lat):
+        self.lon = lon
+        self.lat = lat
 
 if __name__ == '__main__':
     unittest.main()

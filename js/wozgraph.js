@@ -37,6 +37,11 @@ function pyGraphToNodesAndEdges(roads_graph) {
   for (let i = 0; i < roads_graph.nodes.length; i++) {
     nodes.push(new Node(i, ...roads_graph.nodes[i]))
   }
+  for (let i = 0; i < roads_graph.edges.length; i++) {
+    let [n1, n2] = roads_graph.edges[i];
+    nodes[n1].adjacent.push(n2);
+    nodes[n2].adjacent.push(n1);
+  }
   return {nodes: nodes, edges: roads_graph.edges};
 }
 
