@@ -29,6 +29,17 @@ function vicroadsNodesAndEdges(roads_data) {
   return {nodes: nodes, edges: edges};
 }
 
+/** Convert the variable output by my python placemarks_to_js_graph
+ *  function to a graph expected by the plotting stuff. Yeah. Great docs.
+ */
+function pyGraphToNodesAndEdges(roads_graph) {
+  let nodes = [];
+  for (let i = 0; i < roads_graph.nodes.length; i++) {
+    nodes.push(new Node(i, ...roads_graph.nodes[i]))
+  }
+  return {nodes: nodes, edges: roads_graph.edges};
+}
+
 /** Scale nodes' x,y values to fit in box of size h,w. Maintain aspect ratio */
 function scaleNodesToFit(nodes, height, width) {
   let minx = 999;
@@ -76,7 +87,8 @@ class WozGraph {
 $(document).ready(function() {
   let height = 500;
   let width = 1100;
-  let ne = vicroadsNodesAndEdges(roads_data);
+  // let ne = vicroadsNodesAndEdges(roads_data);
+  let ne = pyGraphToNodesAndEdges(roads_graph);
   console.log('nodes: ' + ne.nodes.length);
   scaleNodesToFit(ne.nodes, height, width);
   let x = ne.nodes[0].x;

@@ -97,6 +97,7 @@ def placemarks_to_js_graph(placemarks, outpath, pretty=False, var_name='roads_gr
         graph['nodes'].append(node.xy)
         for a in node.adjacent:
             graph['edges'].append((node_idx, a))
+        node_idx += 1
     with open(outpath, 'w') as ofile:
         ofile.write('let {} = '.format(var_name))
         indent = '\t' if pretty else None

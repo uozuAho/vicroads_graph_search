@@ -10,8 +10,11 @@ def placemarks_to_graph(placemarks):
     """ Converts all points in the given placemarks to graph nodes, connecting
         nodes on the same road, and nodes that are close to each other
     """
+    print('pm to nodes...')
     nodes = placemarks_to_nodes(placemarks)
+    print('join close nodes...')
     add_edges_between_close_nodes(nodes)
+    print('done')
     return nodes
 
 
