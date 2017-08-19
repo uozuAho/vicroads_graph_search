@@ -27,7 +27,7 @@ class BidirectionalDiagram {
     this.destBFSColor = 'rgb(100,0,0)';
     this.sourceColor = 'rgb(0,0,255)';
     this.destColor = 'rgb(0,255,0)';
-    this.nodeSize = 3.5;
+    this.nodeSize = 2;
     this.textColorScale = d3.scaleLinear().domain([0, this.nodes.length / 2])
       .interpolate(d3.interpolateRgb)
       .range([d3.hsl('hsla(102, 100%, 50%, 1)'), d3.hsl('hsla(0, 100%, 50%, 1)')]);
@@ -121,25 +121,3 @@ class BFSDiagram extends BidirectionalDiagram {
     }, this.delay);
   }
 }
-
-$(document).ready(function() {
-  let bidirectionalDiagram = new BidirectionalDiagram(d3.select('#bi-directional').select('#biCanvas'), 500, 550);
-  let bfsDiagram = new BFSDiagram(d3.select('#bi-directional').select('#bfsCanvas'), 500, 550)
-
-  function init() {
-    bidirectionalDiagram = new BidirectionalDiagram(d3.select('#bi-directional').select('#biCanvas'), 500, 550);
-    bfsDiagram = new BFSDiagram(d3.select('#bi-directional').select('#bfsCanvas'), 500, 550)
-    let graph = new Graph(500, 530, 1500);
-    let problem = new BidirectionalProblem(graph);
-    bidirectionalDiagram.init(problem, d3.select('#bi-directional').select('#biStepCount'));
-    bfsDiagram.init(problem, d3.select('#bi-directional').select('#bfsStepCount'));
-  }
-
-  function restart() {
-    bidirectionalDiagram.destroy();
-    bfsDiagram.destroy();
-    init();
-  }
-
-  init();
-});
